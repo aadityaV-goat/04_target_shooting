@@ -97,3 +97,19 @@ class GameEngine:
                 f"ROUND OVER! Final Score: {self.score}",
                 (200, 250)
         )
+            renderer.draw_text(
+            surface,
+            font,
+            "Press R to start a new round",
+            (200, 290)
+)
+
+    def restart_round(self):
+        self.targets = [self._random_target() for _ in range(NUM_TARGETS)]
+        self.hits = 0
+        self.misses = 0
+        self.score = 0
+        self.combo = 0
+        self.time_left = self.time_limit
+        self.round_active = True
+        self.round_start_time = pygame.time.get_ticks()
