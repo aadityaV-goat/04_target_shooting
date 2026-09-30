@@ -25,7 +25,17 @@ class GameEngine:
     def _random_target(self):
         x = random.randint(TARGET_RADIUS + 10, WIDTH - TARGET_RADIUS - 10)
         y = random.randint(TARGET_RADIUS + 10, HEIGHT - TARGET_RADIUS - 10)
-        return Target(x, y, radius=TARGET_RADIUS)
+        speed = random.choice([1, 3, 5])
+        direction_x = random.choice([-1, 1])
+        direction_y = random.choice([-1, 1])
+
+        return Target(
+        x,
+        y,
+        radius=TARGET_RADIUS,
+        speed_x=speed * direction_x,
+        speed_y=speed * direction_y
+)
 
     def handle_click(self, pos):
         target = check_hit(self.targets, pos)
@@ -37,7 +47,8 @@ class GameEngine:
             self.misses += 1
 
     def update(self):
-        pass
+        for target in self.targets:
+            target.update(WIDTH, HEIGHT)
 
     def draw(self, surface, font):
         from game import renderer
