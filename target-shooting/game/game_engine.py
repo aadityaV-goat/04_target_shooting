@@ -21,6 +21,8 @@ class GameEngine:
         self.targets = [self._random_target() for _ in range(NUM_TARGETS)]
         self.hits = 0
         self.misses = 0
+        self.score = 0
+        self.combo = 0
 
     def _random_target(self):
         x = random.randint(TARGET_RADIUS + 10, WIDTH - TARGET_RADIUS - 10)
@@ -39,12 +41,22 @@ class GameEngine:
 
     def handle_click(self, pos):
         target = check_hit(self.targets, pos)
+        
         if target is not None:
             self.hits += 1
+
+    # Increase combo first, then award points
+            self.combo += 1
+            self.score += 10 * self.combo
+
             self.targets.remove(target)
             self.targets.append(self._random_target())
+
         else:
             self.misses += 1
+
+            # A miss breaks the combo
+            self.combo = 0
 
     def update(self):
         for target in self.targets:
@@ -53,4 +65,8 @@ class GameEngine:
     def draw(self, surface, font):
         from game import renderer
         renderer.draw_scene(surface, self.targets)
-        renderer.draw_text(surface, font, f"Hits: {self.hits}  Misses: {self.misses}", (10, 10))
+        renderer.draw_text(    
+    surface,
+    font,
+    f"Score: {self.score}  Combo: x{max(1, self.combo)}",
+    (10, 10))
