@@ -7,6 +7,7 @@ movement, no score/combo, no timer yet. That's Tasks 2-4.
 """
 
 import random
+import pygame
 
 from game.target import Target
 from game.hit_detection import check_hit
@@ -23,6 +24,12 @@ class GameEngine:
         self.misses = 0
         self.score = 0
         self.combo = 0
+        self.time_limit = 30
+        self.time_left = 30
+        self.round_active = True
+        self.round_start_time = pygame.time.get_ticks()
+
+    
 
     def _random_target(self):
         x = random.randint(TARGET_RADIUS + 10, WIDTH - TARGET_RADIUS - 10)
@@ -40,6 +47,8 @@ class GameEngine:
 )
 
     def handle_click(self, pos):
+        if not self.round_active:
+            return
         target = check_hit(self.targets, pos)
         
         if target is not None:
@@ -59,8 +68,18 @@ class GameEngine:
             self.combo = 0
 
     def update(self):
+        if not self.round_active:
+            return
+
         for target in self.targets:
             target.update(WIDTH, HEIGHT)
+
+        elapsed = pygame.time.get_ticks() - self.round_start_time
+        self.time_left = max(0, self.time_limit - elapsed / 1000)
+
+        if self.time_left <= 0:
+            self.time_left = 0
+            self.round_active = False
 
     def draw(self, surface, font):
         from game import renderer
@@ -68,5 +87,13 @@ class GameEngine:
         renderer.draw_text(    
     surface,
     font,
-    f"Score: {self.score}  Combo: x{max(1, self.combo)}",
+    f"{self.score}  Combo: x{max(1, self.combo)}  Time: {int(self.time_left)}",
     (10, 10))
+
+        if not self.round_active:
+            renderer.draw_text(
+                surface,
+                font,
+                f"ROUND OVER! Final Score: {self.score}",
+                (200, 250)
+        )
